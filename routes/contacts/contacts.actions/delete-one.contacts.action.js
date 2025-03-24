@@ -1,26 +1,23 @@
 const logger = require("../../../services/logger.service")(module);
 const { OK, BAD_REQUEST } = require("../../../constants/http-codes");
-const companyMethods = require("../../../DB/sample-db/methods/company");
+const contactMethods = require("../../../DB/sample-db/methods/contact");
 const { NotFound } = require("../../../constants/errors");
 
 /**
- * PATCH /companies/:id
- * Эндпоинт редактирования данных компании.
+ * DELETE /contacts/:id
+ * Эндпоинт удаления контакта.
  * @param {Object} req
  * @param {Object} res
  * @return {Promise<void>}
  */
-async function editOne(req, res) {
-  logger.info("edit company");
+async function deleteOne(req, res) {
+  logger.info("deleting contact");
   const { id } = req.params;
-  const data = req.body;
-
-  const company = companyMethods.getOne(id);
-  if (!company) {
-    throw new NotFound("Company not found");
+  const contact = contactMethods.getOne(id);
+  if (!contact) {
+    throw new NotFound("Contact not found");
   }
-
-  const result = await companyMethods.editOne(id, data);
+  const result = await contactMethods.deleteOne(id);
   if (result instanceof Error) {
     res.status(BAD_REQUEST).json(result.message);
     logger.error(result.message);
@@ -29,7 +26,4 @@ async function editOne(req, res) {
     logger.success();
   }
 }
-
-module.exports = {
-  editOne,
-};
+module.exports = { deleteOne };

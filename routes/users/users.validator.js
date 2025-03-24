@@ -3,17 +3,17 @@ const { UnprocessableEntity } = require("../../constants/errors");
 const validate = require("../../middleware/validation.middleware");
 
 const getAuth = [
-  check("user")
+  check("login")
     .notEmpty()
     .withMessage({
       code: UnprocessableEntity,
-      message: "user: parameter is required",
-    })
-    .bail()
-    .custom((value) => value.id)
+      message: "login: parameter is required",
+    }),
+  check("password")
+    .notEmpty()
     .withMessage({
       code: UnprocessableEntity,
-      message: "user.id: parameter is required",
+      message: "password: parameter is required",
     }),
   validate,
 ];

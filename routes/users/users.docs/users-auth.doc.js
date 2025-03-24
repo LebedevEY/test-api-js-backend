@@ -2,7 +2,7 @@ const { OK } = require("../../../constants/http-codes");
 
 module.exports = {
   "/users/auth": {
-    get: {
+    post: {
       summary: "Retrieves authorization token",
       description:
         "Used to retrive authorization token for the defined user data",
@@ -18,15 +18,15 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  id: {
-                    type: "integer",
-                    description: "User identifier",
-                    example: 1,
-                  },
-                  full_name: {
+                  password: {
                     type: "string",
-                    description: "User full name",
-                    example: "Rick Grimes",
+                    description: "User password",
+                    example: "123456",
+                  },
+                  login: {
+                    type: "string",
+                    description: "User login",
+                    example: "user",
                   },
                 },
               },

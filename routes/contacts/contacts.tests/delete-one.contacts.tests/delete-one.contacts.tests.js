@@ -6,16 +6,11 @@ const v = require("../../../../config").prefix;
 const httpCodes = require("../../../../constants/http-codes");
 const contactMethods = require("../../../../DB/sample-db/methods/contact");
 const requestAuth = require("../../../../middleware/request-auth.middleware");
-const { Unauthorized } = require("../../../../constants/errors");
+const { Unauthorized, NotFound } = require("../../../../constants/errors");
 
 jest.mock("../../../../middleware/request-auth.middleware");
 
-const requestBody = {
-  lastname: "Grimes",
-  firstname: "Rick",
-};
-
-describe("testing PATCH /contacts/:id", () => {
+describe("testing DELETE /contacts/:id", () => {
   beforeAll(async () => {
     // todo: установка соединения с тестовой БД
     // await database.connect();
@@ -40,10 +35,8 @@ describe("testing PATCH /contacts/:id", () => {
 
     test("error: 404 contact not found", async () => {
       jest.spyOn(contactMethods, "getOne").mockImplementationOnce(() => null);
-      
-      const { status, body } = await request(app)
-        .patch(`/${v}/contacts/1`)
-        .send(requestBody);
+
+      const { status, body } = await request(app).delete(`/${v}/contacts/1`);
 
       expect(status).toBe(httpCodes.NOT_FOUND);
       expect(body).toEqual({
@@ -53,9 +46,7 @@ describe("testing PATCH /contacts/:id", () => {
     });
 
     test("error: 422 id parameter has incorrect format", async () => {
-      const { status, body } = await request(app)
-        .patch(`/${v}/contacts/abc`)
-        .send(requestBody);
+      const { status, body } = await request(app).delete(`/${v}/contacts/abc`);
 
       expect(status).toBe(httpCodes.UNPROCESSABLE_ENTITY);
       expect(body).toEqual({
@@ -64,54 +55,36 @@ describe("testing PATCH /contacts/:id", () => {
       });
     });
 
-    test("error: 500 internal server error", async () => {
+    test("error: 400 bad request", async () => {
       jest.spyOn(contactMethods, "getOne").mockImplementationOnce(() => ({
-        id: 16,
-        lastname: "Smith",
-        firstname: "John",
-      }));
-      
-      jest.spyOn(contactMethods, "editOne").mockImplementationOnce(() => {
-        throw new Error();
-      });
-      
-      const { status, body } = await request(app)
-        .patch(`/${v}/contacts/16`)
-        .send(requestBody);
-
-      expect(status).toBe(httpCodes.INTERNAL_ERROR);
-      expect(body).toEqual({
-        code: "INTERNAL_ERROR",
-        message: "Internal unexpected server error",
-      });
-    });
-
-    test("success", async () => {
-      const expectedResult = {
         id: 16,
         lastname: "Grimes",
         firstname: "Rick",
-        patronymic: "Петрович",
-        phone: "79162165588",
-        email: "grigoriev@funeral.com",
-        createdAt: "2020-11-21T08:03:26.589Z",
-        updatedAt: new Date().toISOString(),
-      };
-      
-      jest.spyOn(contactMethods, "getOne").mockImplementationOnce(() => ({
-        id: 16,
-        lastname: "Smith",
-        firstname: "John",
       }));
       
-      jest.spyOn(contactMethods, "editOne").mockImplementationOnce(() => expectedResult);
-      
-      const { status, body } = await request(app)
-        .patch(`/${v}/contacts/16`)
-        .send(requestBody);
+      jest.spyOn(contactMethods, "deleteOne").mockImplementationOnce(() => {
+        return new Error("Ошибка при удалении контакта");
+      });
 
-      expect(body).toEqual(expectedResult);
-      expect(status).toEqual(httpCodes.OK);
+      const { status, body } = await request(app).delete(`/${v}/contacts/16`);
+
+      expect(status).toBe(httpCodes.BAD_REQUEST);
+      expect(body).toEqual("Ошибка при удалении контакта");
+    });
+
+    test("success", async () => {
+      jest.spyOn(contactMethods, "getOne").mockImplementationOnce(() => ({
+        id: 16,
+        lastname: "Grimes",
+        firstname: "Rick",
+      }));
+      
+      jest.spyOn(contactMethods, "deleteOne").mockImplementationOnce(() => 1);
+
+      const { status, body } = await request(app).delete(`/${v}/contacts/16`);
+
+      expect(status).toBe(httpCodes.OK);
+      expect(body).toEqual(1);
     });
   });
 
@@ -127,9 +100,7 @@ describe("testing PATCH /contacts/:id", () => {
     });
 
     test("error: 401 unauthorized", async () => {
-      const { status, body } = await request(app)
-        .patch(`/${v}/contacts/16`)
-        .send(requestBody);
+      const { status, body } = await request(app).delete(`/${v}/contacts/16`);
 
       expect(status).toBe(httpCodes.UNAUTHORIZED);
       expect(body).toEqual({

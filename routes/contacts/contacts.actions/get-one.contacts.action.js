@@ -14,7 +14,7 @@ async function getOne(req, res) {
   logger.init("get contact");
   const { id } = req.params;
 
-  const contact = contactMethods.getOne(id);
+  const contact = await contactMethods.getOne(id);
   if (!contact) {
     throw new NotFound("Contact not found");
   }

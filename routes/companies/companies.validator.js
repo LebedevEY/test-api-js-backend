@@ -1,14 +1,54 @@
 const path = require("path");
-const { body, check } = require("express-validator");
+const { body, check, query } = require("express-validator");
 const { UnprocessableEntity } = require("../../constants/errors");
 const validate = require("../../middleware/validation.middleware");
 const logger = require("../../services/logger.service")(module);
 const imageService = require("../../services/image.service");
 
+const addOne =  [
+  check("name").isString().withMessage({
+    code: UnprocessableEntity,
+    message: "name: parameter has incorrect format",
+  }),
+  check("businessEntity").isString().withMessage({
+    code: UnprocessableEntity,
+    message: "businessEntity: parameter has incorrect format",
+  }),
+  validate,
+]
+
 const getOne = [
   check("id").isNumeric().withMessage({
     code: UnprocessableEntity,
     message: "id: parameter has incorrect format",
+  }),
+  validate,
+];
+
+const getMany = [
+  query("status").optional().isString().withMessage({
+    code: UnprocessableEntity,
+    message: "status: parameter has incorrect format",
+  }),
+  query("type").optional().isString().withMessage({
+    code: UnprocessableEntity,
+    message: "type: parameter has incorrect format",
+  }),
+  query("sortByName").optional().isBoolean().withMessage({
+    code: UnprocessableEntity,
+    message: "sortByName: parameter has incorrect format",
+  }),
+  query("sortByCreatedAt").optional().isBoolean().withMessage({
+    code: UnprocessableEntity,
+    message: "sortByCreatedAt: parameter has incorrect format",
+  }),
+  query("page").optional().isInt({ min: 1 }).withMessage({
+    code: UnprocessableEntity,
+    message: "page: parameter has incorrect format",
+  }),
+  query("limit").optional().isInt({ min: 1 }).withMessage({
+    code: UnprocessableEntity,
+    message: "limit: parameter has incorrect format",
   }),
   validate,
 ];
@@ -69,4 +109,4 @@ const removeImage = [
   validate,
 ];
 
-module.exports = { getOne, editOne, addImage, removeImage };
+module.exports = { addOne, getOne, getMany, editOne, addImage, removeImage };

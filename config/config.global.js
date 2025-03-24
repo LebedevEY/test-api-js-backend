@@ -15,9 +15,14 @@ config.env.test = process.env.NODE_ENV === "test";
 // DB SETTINGS
 config.dbs = {};
 config.dbs.sample_db = {};
-config.dbs.sample_db.uri = "mongodb://user:password@db_host";
-config.dbs.sample_db.database = "db_name";
-config.dbs.sample_db.id = "sample_db";
+config.dbs.sample_db.dialect = "postgres";
+config.dbs.sample_db.charset = "UTF8";
+config.dbs.sample_db.username = "postgres";
+config.dbs.sample_db.password = "postgres";
+config.dbs.sample_db.host = "localhost";
+config.dbs.sample_db.port = 5432;
+config.dbs.sample_db.database = "test-api-js-backend_db";
+config.dbs.sample_db.timezone = "+03:00";
 
 // LOG SETTINGS
 config.log = {};

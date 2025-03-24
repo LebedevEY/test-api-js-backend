@@ -1,5 +1,5 @@
 const logger = require("../../../services/logger.service")(module);
-const { OK } = require("../../../constants/http-codes");
+const { OK, BAD_REQUEST } = require("../../../constants/http-codes");
 const contactMethods = require("../../../DB/sample-db/methods/contact");
 const { NotFound } = require("../../../constants/errors");
 
@@ -11,7 +11,7 @@ const { NotFound } = require("../../../constants/errors");
  * @return {Promise<void>}
  */
 async function editOne(req, res) {
-  logger.init("edit contact");
+  logger.info("edit contact");
   const { id } = req.params;
   const data = req.body;
 
@@ -20,10 +20,14 @@ async function editOne(req, res) {
     throw new NotFound("Contact not found");
   }
 
-  const updated = contactMethods.editOne(id, data);
-
-  res.status(OK).json(updated);
-  logger.success();
+  const result = await contactMethods.editOne(id, data);
+  if (result instanceof Error) {
+    res.status(BAD_REQUEST).json(result.message);
+    logger.error(result.message);
+  } else {
+    res.status(OK).json(result);
+    logger.success();
+  }
 }
 
 module.exports = {
